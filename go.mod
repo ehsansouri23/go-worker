@@ -1,3 +1,3 @@
-module go-data-driven
+module go-worker
 
 go 1.21
