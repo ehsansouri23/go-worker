@@ -35,7 +35,6 @@ func (w *Worker[I, O]) Wait() {
 }
 
 func (w *Worker[I, O]) SubmitJob(job I) {
-	w.wg.Add(1)
 	w.jobChan <- job
 }
 
@@ -44,6 +43,7 @@ func (w *Worker[I, O]) SetHandler(handler Handler[I, O]) {
 }
 
 func (w *Worker[I, O]) workerGoroutine(id int) {
+	defer w.wg.Done()
 	for job := range w.jobChan {
 		w.resultChan <- w.handler(job)
 		w.wg.Done()
@@ -60,6 +60,7 @@ func (w *Worker[I, O]) HandleJobs() {
 		}
 	} else {
 		for i := 1; i <= w.maxGoroutines; i++ {
+			w.wg.Add(1)
 			go w.workerGoroutine(i)
 		}
 	}
